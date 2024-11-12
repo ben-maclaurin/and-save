@@ -36,6 +36,7 @@
 ;;; Code:
 
 (require 'use-package)
+(require 'package)
 
 (defgroup and-save nil
   "Settings for and-save package."
@@ -67,15 +68,22 @@ COMMAND is the command to bind it to."
     (message "Bound %s to %s and saved to %s" 
              key-str command (file-name-nondirectory init-file))))
 
+(defun and-save--get-available-packages ()
+  "Get a list of available package names from package archives."
+  (unless package-archive-contents
+    (package-refresh-contents))
+  (mapcar #'car package-archive-contents))
+
 ;;;###autoload
 (defun use-package-and-save (package &rest args)
   "Like use-package, but also appends the declaration to init file.
 PACKAGE is the package name to declare.
 ARGS are the use-package keywords and their values."
   (interactive
-   (list (intern (completing-read "Package: "
-                                 (mapcar #'symbol-name package-archive-contents)))
-         (read-from-minibuffer "Arguments (in list form): ")))
+   (list (intern
+          (completing-read "Package: "
+                          (mapcar #'symbol-name (and-save--get-available-packages))))
+         (read-from-minibuffer "Arguments (in list form, e.g., (:ensure t :defer t)): ")))
   
   ;; Evaluate the use-package declaration
   (apply #'use-package-handler/:ensure package t args)

@@ -75,24 +75,17 @@ COMMAND is the command to bind it to."
   (mapcar #'car package-archive-contents))
 
 ;;;###autoload
-(defun use-package-and-save (package &rest args)
-  "Like use-package, but also appends the declaration to init file.
-PACKAGE is the package name to declare.
-ARGS are the use-package keywords and their values."
+(defun use-package-and-save (package-name)
+  "Install and configure PACKAGE-NAME using use-package and save to init file."
   (interactive
    (list (intern
           (completing-read "Package: "
-                          (mapcar #'symbol-name (and-save--get-available-packages))))
-         (read-from-minibuffer "Arguments (in list form, e.g., (:ensure t :defer t)): ")))
+                          (mapcar #'symbol-name (and-save--get-available-packages))))))
   
   ;; Evaluate the use-package declaration
-  (apply #'use-package-handler/:ensure package t args)
+  (use-package-handler/:ensure package-name t nil)
   
-  (let* ((declaration (format "\n(use-package %s%s)"
-                             package
-                             (if args
-                                 (concat " " (prin1-to-string args))
-                               "")))
+  (let* ((declaration (format "\n(use-package %s\n  :ensure t)" package-name))
          (init-file (or and-save-init-file "~/.emacs")))
     
     ;; Save to init file
@@ -100,8 +93,8 @@ ARGS are the use-package keywords and their values."
       (insert declaration)
       (append-to-file (point-min) (point-max) init-file))
     
-    (message "Declared use-package for %s and saved to %s"
-             package (file-name-nondirectory init-file))))
+    (message "Installed and configured %s, saved to %s"
+             package-name (file-name-nondirectory init-file))))
 
 ;;;###autoload
 (defmacro use-package-save (name &rest args)
@@ -109,7 +102,7 @@ ARGS are the use-package keywords and their values."
 NAME is the package name.
 ARGS are the use-package keywords and their values."
   (declare (indent defun))
-  `(use-package-and-save ',name ',args))
+  `(use-package-and-save ',name))
 
 (provide 'and-save)
 ;;; and-save.el ends here

@@ -82,8 +82,8 @@ COMMAND is the command to bind it to."
           (completing-read "Package: "
                           (mapcar #'symbol-name (and-save--get-available-packages))))))
   
-  ;; Evaluate the use-package declaration
-  (use-package-handler/:ensure package-name t nil)
+  ;; Evaluate the use-package form directly instead of using the handler
+  (eval `(use-package ,package-name :ensure t))
   
   (let* ((declaration (format "\n(use-package %s\n  :ensure t)" package-name))
          (init-file (or and-save-init-file "~/.emacs")))

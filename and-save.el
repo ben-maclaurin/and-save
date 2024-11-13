@@ -29,7 +29,7 @@
 
 ;; and-save provides two main features:
 ;; 1. global-set-key-and-save: Sets a global key binding and saves it to your init file
-;; 2. use-package-and-save: Evaluates a use-package declaration and saves it to your init file
+;; 2. package-install-and-save: Evaluates a use-package declaration and saves it to your init file
 ;;
 ;; Both functions automatically persist their changes to your init file.
 
@@ -75,7 +75,7 @@ COMMAND is the command to bind it to."
   (mapcar #'car package-archive-contents))
 
 ;;;###autoload
-(defun use-package-and-save (package-name)
+(defun package-install-and-save (package-name)
   "Install and configure PACKAGE-NAME using use-package and save to init file."
   (interactive
    (list (intern
@@ -97,12 +97,12 @@ COMMAND is the command to bind it to."
              package-name (file-name-nondirectory init-file))))
 
 ;;;###autoload
-(defmacro use-package-save (name &rest args)
-  "A macro wrapper around use-package-and-save.
+(defmacro package-install-save (name &rest args)
+  "A macro wrapper around package-install-and-save.
 NAME is the package name.
 ARGS are the use-package keywords and their values."
   (declare (indent defun))
-  `(use-package-and-save ',name))
+  `(package-install-and-save ',name))
 
 (provide 'and-save)
 ;;; and-save.el ends here
